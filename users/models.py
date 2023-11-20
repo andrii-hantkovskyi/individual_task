@@ -1,9 +1,23 @@
-from pydantic import BaseModel, Field
+from enum import Enum
+from typing import Optional, Annotated
 
+from pydantic import BaseModel, Field, ConfigDict, BeforeValidator
 
-class Role(BaseModel):
-    _id: str
-    name: str
+import settings
+
+PyObjectId = Annotated[str, BeforeValidator(str)]
+
+if settings.DEBUG:
+    class RoleTypes(str, Enum):
+        user = 'user'
+        advanced = 'advanced'
+        admin = 'admin'
+        test = 'test'
+else:
+    class RoleTypes(str, Enum):
+        user = 'user'
+        advanced = 'advanced'
+        admin = 'admin'
 
 
 class UserBase(BaseModel):
@@ -12,21 +26,37 @@ class UserBase(BaseModel):
     last_name: str
     delivery_address: str
     phone_number: int = Field(gt=380000000000, lt=380999999999)
+
+
+class UserCreateBase(UserBase):
     email: str
-    role_id: int
+    role: RoleTypes
 
 
 class User(UserBase):
-    _id: str
+    id: Optional[PyObjectId] = Field(default=None, alias='_id')
+    email: str
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True
+    )
+
+
+class UserUpdate(UserBase):
+    ...
 
 
 class UserJWT(BaseModel):
-    _id: str
+    id: Optional[PyObjectId] = Field(default=None, alias='_id')
     email: str
-    role_id: int
+    role: RoleTypes
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True
+    )
 
 
-class UserCreate(UserBase):
+class UserCreate(UserCreateBase):
     password: str
 
 
