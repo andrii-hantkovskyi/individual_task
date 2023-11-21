@@ -1,3 +1,5 @@
+import datetime
+
 import bcrypt
 import jwt
 
@@ -23,6 +25,7 @@ async def create_user(user_data: UserCreate):
 
     user_data.password = bcrypt.hashpw(user_data.password.encode('utf-8'), salt=settings.SECRET_TOKEN.encode('utf-8'))
     user_data.role = user_data.role.value
+    user_data.date_of_birth = datetime.date.strftime(user_data.date_of_birth, settings.DATE_FORMAT)
     await collection.insert_one(user_data.model_dump(mode='python'))
 
 
@@ -51,6 +54,7 @@ async def get_jwt_token(login_data: UserLogin):
 
 
 async def update_user_data(email: str, update_data: UserUpdate):
+    update_data.date_of_birth = datetime.date.strftime(update_data.date_of_birth, settings.DATE_FORMAT)
     await collection.update_one({'email': email}, {'$set': update_data.model_dump(mode='python')})
     return update_data
 

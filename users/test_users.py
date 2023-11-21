@@ -18,6 +18,7 @@ async def test_register_success():
         'delivery_address': 'Syhiv',
         'phone_number': 380995762844,
         'email': 'test2@gmail.com',
+        'date_of_birth': '2002-12-12',
         'password': 'testpass',
         'role': 'test'
     }
@@ -46,6 +47,7 @@ async def test_register_email_exists():
         'phone_number': 380995762844,
         'email': 'test@gmail.com',
         'password': 'testpass',
+        'date_of_birth': '2002-12-12',
         'role': 'test'
     }
 
@@ -64,6 +66,7 @@ async def test_register_wrong_phone_number():
         'phone_number': 3809945762844,
         'email': 'test2@gmail.com',
         'password': 'megapass228',
+        'date_of_birth': '2002-12-12',
         'role': 'test'
     }
 
@@ -83,8 +86,9 @@ async def test_login_success():
         res = await client.post('/login', json=login_data)
         assert res.status_code == 200
         assert res.json() == (
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NWE3MGY4MTM3YmFkMThjY2JmODdkZCIsImVtYWlsIjoidGVzdEBnbWFpb'
-            'C5jb20iLCJyb2xlIjoidGVzdCJ9.5loRcVbwlLTHyWdbbKg7x-AOXjTOo6JYEVPpU_HLbPI')
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NWNjYjM4YTNjMmIwMTc1N2UxOTI0MCIsImVtYWlsIjoidGVzdEBnbWFpb'
+            'C5jb20iLCJyb2xlIjoidGVzdCJ9.eXQy3CUHnPW6Dh1_pKkVad8f5RojUygcDOuGQI2D5xw'
+        )
 
 
 @pytest.mark.anyio
@@ -142,7 +146,8 @@ async def test_user_get():
         'delivery_address': 'test',
         'phone_number': 380994652744,
         'email': 'test@gmail.com',
-        '_id': '655a70f8137bad18ccbf87dd'
+        'date_of_birth': '2004-12-25',
+        '_id': '655ccb38a3c2b01757e19240'
     }
 
     async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
@@ -171,6 +176,7 @@ async def test_user_update():
         'phone_number': 380994576284,
         'email': 'test2update@gmail.com',
         'password': 'megapass228',
+        'date_of_birth': '2001-08-05',
         'role': 'test'
     }
 
@@ -189,6 +195,7 @@ async def test_user_update():
             'last_name': 'grfdghrfgh',
             'delivery_address': 'Syhiv',
             'phone_number': 380994576284,
+            'date_of_birth': '2001-09-14'
         }
 
         updated_user = await client.put('/update-info', headers={
@@ -214,6 +221,7 @@ async def test_user_delete():
         'delivery_address': 'Syhiv',
         'phone_number': 380994576284,
         'email': 'test2delete@gmail.com',
+        'date_of_birth': '2001-08-05',
         'password': 'megapass228',
         'role': 'test'
     }

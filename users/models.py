@@ -1,7 +1,8 @@
+import datetime
 from enum import Enum
 from typing import Optional, Annotated
 
-from pydantic import BaseModel, Field, ConfigDict, BeforeValidator
+from pydantic import BaseModel, Field, ConfigDict, BeforeValidator, field_validator
 
 import settings
 
@@ -25,12 +26,18 @@ class UserBase(BaseModel):
     middle_name: str
     last_name: str
     delivery_address: str
+    date_of_birth: datetime.date
     phone_number: int = Field(gt=380000000000, lt=380999999999)
+
+    @classmethod
+    @field_validator('date_of_birth', mode='before')
+    def check_date_of_birth(cls, value):
+        return datetime.datetime.strptime(value, settings.DATE_FORMAT).date()
 
 
 class UserCreateBase(UserBase):
     email: str
-    role: RoleTypes
+    role: RoleTypes = 'user'
 
 
 class User(UserBase):
