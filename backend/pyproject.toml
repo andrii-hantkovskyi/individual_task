@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "individual-task-buffed"
+name = "backend"
 version = "0.1.0"
 description = ""
 authors = ["uandriyko <uandriyko@github.com>"]

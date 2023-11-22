@@ -37,7 +37,6 @@ class UserBase(BaseModel):
 
 class UserCreateBase(UserBase):
     email: str
-    role: RoleTypes = 'user'
 
 
 class User(UserBase):
@@ -65,8 +64,18 @@ class UserJWT(BaseModel):
 
 class UserCreate(UserCreateBase):
     password: str
+    role: RoleTypes = RoleTypes.user
 
 
 class UserLogin(BaseModel):
     email: str
     password: str
+
+
+class UserInfoAdmin(User):
+    role: str
+
+
+class UserInfoAdvanced(BaseModel):
+    first_name: str
+    email: str

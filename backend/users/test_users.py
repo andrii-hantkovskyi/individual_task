@@ -237,3 +237,151 @@ async def test_user_delete():
             'Authorization': f'Bearer {token}'
         })
         assert res.status_code == 204
+
+
+ADMIN_TEST_USER_ID = ''
+
+
+@pytest.mark.anyio
+async def test_admin_user_delete_not_admin():
+    global ADMIN_TEST_USER_ID
+    user_json = {
+        'first_name': 'delete',
+        'middle_name': 'burh',
+        'last_name': 'grfdghrfgh',
+        'delivery_address': 'Syhiv',
+        'phone_number': 380994576284,
+        'email': 'test2delete@gmail.com',
+        'date_of_birth': '2001-08-05',
+        'password': 'megapass228',
+        'role': 'test'
+    }
+
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        await client.post('/register', json=user_json)
+
+        token = await client.post('/login', json={
+            'email': user_json['email'],
+            'password': user_json['password']
+        })
+        token = token.json()
+
+        user = await client.get('/get-info', headers={
+            'Authorization': f'Bearer {token}'
+        })
+        user_data = user.json()
+        ADMIN_TEST_USER_ID = user_data['_id']
+
+        del_res = await client.delete(f'/delete/{ADMIN_TEST_USER_ID}', headers={
+            'Authorization': f'Bearer {token}'
+        })
+        assert del_res.status_code == 401
+
+
+@pytest.mark.anyio
+async def test_admin_user_get_success():
+    user_json = {
+        '_id': ADMIN_TEST_USER_ID,
+        'first_name': 'delete',
+        'middle_name': 'burh',
+        'last_name': 'grfdghrfgh',
+        'delivery_address': 'Syhiv',
+        'phone_number': 380994576284,
+        'email': 'test2delete@gmail.com',
+        'date_of_birth': '2001-08-05',
+        'role': 'test'
+    }
+
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.get(f'/get-info/{ADMIN_TEST_USER_ID}', headers={
+            'Authorization': f'Bearer {settings.ADMIN_TOKEN}'
+        })
+        assert res.status_code == 200
+        res = res.json()
+        assert res == user_json
+
+
+@pytest.mark.anyio
+async def test_advanced_user_get_success():
+    user_json = {
+        'first_name': 'delete',
+        'email': 'test2delete@gmail.com'
+    }
+
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.get(f'/get-info/{ADMIN_TEST_USER_ID}', headers={
+            'Authorization': f'Bearer {settings.ADVANCED_TOKEN}'
+        })
+        assert res.status_code == 200
+        res = res.json()
+        assert res == user_json
+
+
+@pytest.mark.anyio
+async def test_advanced_user_get_not_admin_or_advanced():
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.get(f'/get-info/{ADMIN_TEST_USER_ID}', headers={
+            'Authorization': f'Bearer {settings.USER_TOKEN}'
+        })
+        assert res.status_code == 401
+
+
+@pytest.mark.anyio
+async def test_admin_user_delete_success():
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        del_res = await client.delete(f'/delete/{ADMIN_TEST_USER_ID}', headers={
+            'Authorization': f'Bearer {settings.ADMIN_TOKEN}'
+        })
+        assert del_res.status_code == 204
+
+
+@pytest.mark.anyio
+async def test_admin_send_emails_success():
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.post(f'/send-emails/12', headers={
+            'Authorization': f'Bearer {settings.ADVANCED_TOKEN}'
+        })
+        assert res.status_code == 200
+
+        res = res.json()
+        assert res == [
+            {
+                "to": "andriyko@gmail.com",
+                "message": "Hello Andriyko, you have 10% discount for this month in example.shop.com\""
+            },
+            {
+                "to": "test@gmail.com",
+                "message": "Hello test, you have 10% discount for this month in example.shop.com\""
+            }
+        ]
+
+
+@pytest.mark.anyio
+async def test_admin_send_emails_empty():
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.post(f'/send-emails/02', headers={
+            'Authorization': f'Bearer {settings.ADMIN_TOKEN}'
+        })
+        assert res.status_code == 200
+        res = res.json()
+        assert res == []
+
+
+@pytest.mark.anyio
+async def test_admin_send_emails_not_admin_or_advanced():
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.post(f'/send-emails/12', headers={
+            'Authorization': f'Bearer {settings.USER_TOKEN}'
+        })
+        assert res.status_code == 401
+
+
+@pytest.mark.anyio
+async def test_admin_send_emails_wrong_month():
+    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
+        res = await client.post(f'/send-emails/15', headers={
+            'Authorization': f'Bearer {settings.ADVANCED_TOKEN}'
+        })
+        assert res.status_code == 400
+        res = res.json()
+        assert res == {'detail': "Month can't be less than 1 and more than 12"}

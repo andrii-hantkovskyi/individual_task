@@ -1,11 +1,13 @@
 import datetime
+from typing import List
 
 import bcrypt
 import jwt
+from bson import ObjectId
 
 import settings
 from database import database
-from users.models import UserCreate, UserJWT, UserLogin, UserUpdate
+from users.models import UserCreate, UserJWT, UserLogin, UserUpdate, RoleTypes, User
 
 collection = database.users
 
@@ -15,8 +17,27 @@ async def get_user_by_email(email: str):
     return user
 
 
+async def get_user_by_id(user_id: str):
+    return await collection.find_one({'_id': ObjectId(user_id)})
+
+
+async def _get_users_by_birth_month(birth_month: int) -> List[User]:
+    res = []
+    cursor = collection.find(
+        {'date_of_birth': {'$regex': f".-{birth_month if len(str(birth_month)) == 2 else f"0{birth_month}"}-."}})
+
+    async for user in cursor:
+        res.append(User(**user))
+
+    return res
+
+
 async def delete_user_by_email(email: str):
     await collection.delete_one({'email': email})
+
+
+async def delete_user_by_id(user_id: str):
+    await collection.delete_one({'_id': ObjectId(user_id)})
 
 
 async def create_user(user_data: UserCreate):
@@ -24,7 +45,8 @@ async def create_user(user_data: UserCreate):
         raise ValueError('User with such email already registered')
 
     user_data.password = bcrypt.hashpw(user_data.password.encode('utf-8'), salt=settings.SECRET_TOKEN.encode('utf-8'))
-    user_data.role = user_data.role.value
+    if not (settings.DEBUG and user_data.role == RoleTypes.test.value):
+        user_data.role = RoleTypes.user
     user_data.date_of_birth = datetime.date.strftime(user_data.date_of_birth, settings.DATE_FORMAT)
     await collection.insert_one(user_data.model_dump(mode='python'))
 
@@ -68,3 +90,17 @@ async def reset_all_login_unsuccessful_attempts():
 
     async for user in cursor:
         await reset_user_login_unsuccessful_attempts(user['email'])
+
+
+async def send_emails(birth_month: int):
+    emails = []
+    users = await _get_users_by_birth_month(birth_month)
+
+    for user in users:
+        # TODO: implement email sending
+        emails.append({
+            'to': user.email,
+            'message': f'Hello {user.first_name}, you have 10% discount for this month in example.shop.com"'
+        })
+
+    return emails

@@ -19,5 +19,7 @@ DEBUG: bool = env.bool('DEBUG')
 
 if DEBUG:
     ADMIN_TOKEN = env.str('ADMIN_TOKEN')
+    ADVANCED_TOKEN = env.str('ADVANCED_TOKEN')
+    USER_TOKEN = env.str('USER_TOKEN')
 
 DATE_FORMAT = env.str('DATE_FORMAT')
