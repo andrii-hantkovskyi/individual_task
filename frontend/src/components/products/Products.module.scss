@@ -1,0 +1,25 @@
+.productList {
+  @apply flex flex-col flex-wrap items-center;
+}
+
+.productItem {
+  @apply border-2 border-cyan-500 flex justify-between;
+  border-radius: 10px;
+  padding: 10px;
+  width: 200px;
+  margin: 5px 0;
+
+  > button {
+    @apply border-2 border-pink-400 px-4;
+    font-size: 14px;
+    border-radius: 10px;
+
+    transition: background-color .3s ease-in-out;
+
+    &:hover {
+      @apply bg-pink-400
+    }
+
+  }
+
+}
