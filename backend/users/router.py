@@ -5,14 +5,15 @@ from starlette.responses import Response, JSONResponse
 from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_200_OK
 
 import settings
-from users.models import UserCreate, UserLogin, User, UserUpdate, RoleTypes, UserInfoAdmin, UserInfoAdvanced
+from users.models import UserCreate, UserLogin, User, UserUpdate, RoleTypes, UserInfoAdmin, UserInfoAdvanced, \
+    RefreshToken
 from users.services import (
     get_user_by_email,
     create_user,
-    get_jwt_token,
+    login_user,
     update_user_data,
     delete_user_by_email,
-    reset_user_login_unsuccessful_attempts, delete_user_by_id, get_user_by_id, send_emails
+    reset_user_login_unsuccessful_attempts, delete_user_by_id, get_user_by_id, send_emails, refresh_jwt_tokens
 )
 
 users_router = APIRouter(prefix='/users', tags=['users'])
@@ -28,11 +29,16 @@ async def register_user(user_data: UserCreate):
 
 
 @users_router.post('/login')
-async def login_user(login_data: UserLogin):
+async def sign_in_user(login_data: UserLogin):
     try:
-        return await get_jwt_token(login_data)
+        return await login_user(login_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@users_router.post('/refresh')
+async def refresh_tokens(refresh_token: RefreshToken):
+    return await refresh_jwt_tokens(refresh_token.refresh)
 
 
 @users_router.get('/get-info', response_model=User)

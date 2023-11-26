@@ -70,7 +70,7 @@ async def test_product_create_not_admin():
         token = token.json()
 
         res = await client.post('/', json=product_json, headers={
-            'Authorization': f'Bearer {token}'
+            'Authorization': f'Bearer {token["access"]}'
         })
         assert res.status_code == 401
 
@@ -158,7 +158,7 @@ async def test_product_update_not_admin():
         token = token.json()
 
         res = await client.put(f'/{TEST_PRODUCT_ID}', json=product_json, headers={
-            'Authorization': f'Bearer {token}'
+            'Authorization': f'Bearer {token["access"]}'
         })
         assert res.status_code == 401
 

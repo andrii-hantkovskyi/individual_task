@@ -4,9 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 
 import settings
-from users.auth import BearerTokenAuthBackend
+from database import backup_db
 from orders.router import orders_router
 from products.router import products_router
+from users.auth import BearerTokenAuthBackend
 from users.router import users_router
 from users.services import reset_all_login_unsuccessful_attempts
 
@@ -29,7 +30,9 @@ app.include_router(prefix='/api', router=users_router)
 @app.on_event('startup')
 async def init_scheduler():
     scheduler = AsyncIOScheduler()
+    scheduler.timezone = settings.TZ
 
     scheduler.add_job(reset_all_login_unsuccessful_attempts, 'cron', day='*')
+    scheduler.add_job(backup_db, 'cron', day='*', hour=18)
 
     scheduler.start()

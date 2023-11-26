@@ -1,5 +1,5 @@
 import jwt
-from jwt import InvalidSignatureError
+from jwt import InvalidSignatureError, ExpiredSignatureError
 from starlette.authentication import AuthenticationBackend, AuthenticationError
 
 import settings
@@ -27,8 +27,10 @@ class BearerTokenAuthBackend(AuthenticationBackend):
                 algorithms=[settings.JWT_ALGORITHM],
                 options={"verify_aud": False},
             )
-        except (ValueError, UnicodeDecodeError, InvalidSignatureError) as exc:
+        except (ValueError, UnicodeDecodeError, InvalidSignatureError):
             raise AuthenticationError('Invalid JWT Token.')
+        except ExpiredSignatureError:
+            raise AuthenticationError('Token expired')
 
         email: str = decoded.get("email")
         user = await get_user_by_email(email)

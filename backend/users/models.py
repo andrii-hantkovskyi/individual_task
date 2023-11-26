@@ -53,7 +53,7 @@ class UserUpdate(UserBase):
 
 
 class UserJWT(BaseModel):
-    id: Optional[PyObjectId] = Field(default=None, alias='_id')
+    user_id: Optional[PyObjectId] = Field(default=None, alias='_id')
     email: str
     role: RoleTypes
     model_config = ConfigDict(
@@ -79,3 +79,7 @@ class UserInfoAdmin(User):
 class UserInfoAdvanced(BaseModel):
     first_name: str
     email: str
+
+
+class RefreshToken(BaseModel):
+    refresh: str

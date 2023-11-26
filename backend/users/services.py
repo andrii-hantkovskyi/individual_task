@@ -51,7 +51,29 @@ async def create_user(user_data: UserCreate):
     await collection.insert_one(user_data.model_dump(mode='python'))
 
 
-async def get_jwt_token(login_data: UserLogin):
+def _get_jwt_tokens(user):
+    access_token_data = UserJWT(**user).model_dump(mode='python')
+    access_token_data['sup'] = 'access'
+    access_token_data['exp'] = (
+            datetime.datetime.now(tz=settings.TZ) + datetime.timedelta(hours=1)).timestamp()
+    access_token = jwt.encode(access_token_data, key=settings.SECRET_TOKEN,
+                              algorithm=settings.JWT_ALGORITHM)
+
+    refresh_token_data = {
+        'sup': 'refresh',
+        'user_id': str(user['_id']),
+        'exp': (datetime.datetime.now(tz=settings.TZ) + datetime.timedelta(days=7)).timestamp()
+    }
+
+    refresh_token = jwt.encode(refresh_token_data, key=settings.SECRET_TOKEN, algorithm=settings.JWT_ALGORITHM)
+
+    return {
+        'access': access_token,
+        'refresh': refresh_token
+    }
+
+
+async def login_user(login_data: UserLogin):
     email, password = login_data.email, login_data.password
     user = await get_user_by_email(email)
 
@@ -70,9 +92,17 @@ async def get_jwt_token(login_data: UserLogin):
         raise ValueError('Wrong credentials')
 
     await collection.update_one({'email': user['email']}, {'$set': {'login_unsuccessful_attempts': 0}})
-    token = jwt.encode(UserJWT(**user).model_dump(mode='json'), key=settings.SECRET_TOKEN,
-                       algorithm=settings.JWT_ALGORITHM)
-    return token
+
+    return _get_jwt_tokens(user)
+
+
+async def refresh_jwt_tokens(refresh_token: str):
+    refresh_data = jwt.decode(refresh_token, settings.SECRET_TOKEN, algorithms=[settings.JWT_ALGORITHM])
+    user_id = refresh_data['user_id']
+
+    user = await get_user_by_id(user_id)
+
+    return _get_jwt_tokens(user)
 
 
 async def update_user_data(email: str, update_data: UserUpdate):
