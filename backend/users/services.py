@@ -4,6 +4,7 @@ from typing import List
 import bcrypt
 import jwt
 from bson import ObjectId
+from jwt import ExpiredSignatureError
 
 import settings
 from database import database
@@ -68,8 +69,8 @@ def _get_jwt_tokens(user):
     refresh_token = jwt.encode(refresh_token_data, key=settings.SECRET_TOKEN, algorithm=settings.JWT_ALGORITHM)
 
     return {
-        'access': access_token,
-        'refresh': refresh_token
+        'access_token': access_token,
+        'refresh_token': refresh_token
     }
 
 
@@ -93,22 +94,33 @@ async def login_user(login_data: UserLogin):
 
     await collection.update_one({'email': user['email']}, {'$set': {'login_unsuccessful_attempts': 0}})
 
-    return _get_jwt_tokens(user)
+    return {
+        **user,
+        **_get_jwt_tokens(user)
+    }
 
 
 async def refresh_jwt_tokens(refresh_token: str):
-    refresh_data = jwt.decode(refresh_token, settings.SECRET_TOKEN, algorithms=[settings.JWT_ALGORITHM])
-    user_id = refresh_data['user_id']
+    try:
+        refresh_data = jwt.decode(refresh_token, settings.SECRET_TOKEN, algorithms=[settings.JWT_ALGORITHM])
+        user_id = refresh_data['user_id']
 
-    user = await get_user_by_id(user_id)
+        user = await get_user_by_id(user_id)
 
-    return _get_jwt_tokens(user)
+        return {
+            **user,
+            **_get_jwt_tokens(user)
+        }
+    except ExpiredSignatureError:
+        raise ValueError('Token expired')
 
 
 async def update_user_data(email: str, update_data: UserUpdate):
     update_data.date_of_birth = datetime.date.strftime(update_data.date_of_birth, settings.DATE_FORMAT)
-    await collection.update_one({'email': email}, {'$set': update_data.model_dump(mode='python')})
-    return update_data
+    update_data_db = update_data.model_dump(mode='python')
+    del update_data_db['role']
+    await collection.update_one({'email': email}, {'$set': update_data_db})
+    return update_data.model_dump(mode='python')
 
 
 async def reset_user_login_unsuccessful_attempts(email: str):

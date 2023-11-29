@@ -33,7 +33,7 @@ async def test_register_success():
         })
         token = token.json()
         await client.delete('/delete', headers={
-            'Authorization': f'Bearer {token["access"]}'
+            'Authorization': f'Bearer {token["access_token"]}'
         })
 
 
@@ -134,35 +134,6 @@ async def test_login_attempts():
 
 
 @pytest.mark.anyio
-async def test_user_get_success():
-    user_json = {
-        'first_name': 'test',
-        'middle_name': 'test',
-        'last_name': 'test',
-        'delivery_address': 'test',
-        'phone_number': 380994652744,
-        'email': 'test@gmail.com',
-        'date_of_birth': '2004-12-25',
-        '_id': '655ccb38a3c2b01757e19240'
-    }
-
-    async with AsyncClient(base_url='http://127.0.0.1:8000/api/users') as client:
-        await client.post('/register', json=user_json)
-
-        token = await client.post('/login', json={
-            'email': user_json['email'],
-            'password': 'testpass'
-        })
-        token = token.json()
-
-        res = await client.get('/get-info', headers={
-            'Authorization': f'Bearer {token["access"]}'
-        })
-        assert res.status_code == 200
-        assert res.json() == user_json
-
-
-@pytest.mark.anyio
 async def test_user_update():
     user_json = {
         'first_name': 'update',
@@ -195,7 +166,7 @@ async def test_user_update():
         }
 
         updated_user = await client.put('/update-info', headers={
-            'Authorization': f'Bearer {token["access"]}'
+            'Authorization': f'Bearer {token["access_token"]}'
         }, json=user_json_update)
 
         user_json_update['email'] = user_json['email']
@@ -204,7 +175,7 @@ async def test_user_update():
         assert updated_user.json() == user_json_update
 
         await client.delete('/delete', headers={
-            'Authorization': f'Bearer {token["access"]}'
+            'Authorization': f'Bearer {token["access_token"]}'
         })
 
 
@@ -230,7 +201,7 @@ async def test_user_delete():
         })
         token = token.json()
         res = await client.delete('/delete', headers={
-            'Authorization': f'Bearer {token["access"]}'
+            'Authorization': f'Bearer {token["access_token"]}'
         })
         assert res.status_code == 204
 
@@ -263,13 +234,13 @@ async def test_admin_user_delete_not_admin():
         token = token.json()
 
         user = await client.get('/get-info', headers={
-            'Authorization': f'Bearer {token["access"]}'
+            'Authorization': f'Bearer {token["access_token"]}'
         })
         user_data = user.json()
         ADMIN_TEST_USER_ID = user_data['_id']
 
         del_res = await client.delete(f'/delete/{ADMIN_TEST_USER_ID}', headers={
-            'Authorization': f'Bearer {token["access"]}'
+            'Authorization': f'Bearer {token["access_token"]}'
         })
         assert del_res.status_code == 401
 

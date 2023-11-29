@@ -40,8 +40,8 @@ class UserCreateBase(UserBase):
 
 
 class User(UserBase):
-    id: Optional[PyObjectId] = Field(default=None, alias='_id')
     email: str
+    role: RoleTypes
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True
@@ -49,13 +49,12 @@ class User(UserBase):
 
 
 class UserUpdate(UserBase):
+    role: RoleTypes
     ...
 
 
 class UserJWT(BaseModel):
     user_id: Optional[PyObjectId] = Field(default=None, alias='_id')
-    email: str
-    role: RoleTypes
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True
@@ -73,7 +72,7 @@ class UserLogin(BaseModel):
 
 
 class UserInfoAdmin(User):
-    role: str
+    id: Optional[PyObjectId] = Field(default=None, alias='_id')
 
 
 class UserInfoAdvanced(BaseModel):
@@ -82,4 +81,16 @@ class UserInfoAdvanced(BaseModel):
 
 
 class RefreshToken(BaseModel):
-    refresh: str
+    refresh_token: str
+
+
+class AccessToken(BaseModel):
+    access_token: str
+
+
+class AuthTokens(AccessToken, RefreshToken):
+    pass
+
+
+class LoginResponse(User, AuthTokens):
+    pass

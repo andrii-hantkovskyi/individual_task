@@ -6,7 +6,7 @@ from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_200_OK
 
 import settings
 from users.models import UserCreate, UserLogin, User, UserUpdate, RoleTypes, UserInfoAdmin, UserInfoAdvanced, \
-    RefreshToken
+    RefreshToken, LoginResponse
 from users.services import (
     get_user_by_email,
     create_user,
@@ -28,7 +28,7 @@ async def register_user(user_data: UserCreate):
         raise HTTPException(400, detail=str(e))
 
 
-@users_router.post('/login')
+@users_router.post('/login', response_model=LoginResponse)
 async def sign_in_user(login_data: UserLogin):
     try:
         return await login_user(login_data)
@@ -38,11 +38,14 @@ async def sign_in_user(login_data: UserLogin):
 
 @users_router.post('/refresh')
 async def refresh_tokens(refresh_token: RefreshToken):
-    return await refresh_jwt_tokens(refresh_token.refresh)
+    try:
+        return await refresh_jwt_tokens(refresh_token.refresh)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@users_router.get('/get-info', response_model=User)
-async def get_user(request: Request):
+@users_router.post('/verify', response_model=User)
+async def verify_access_token(request: Request):
     if isinstance(request.user, UnauthenticatedUser):
         raise HTTPException(status_code=401)
     return await get_user_by_email(request.user['email'])
@@ -54,7 +57,6 @@ async def update_user(request: Request, upd_data: UserUpdate):
         raise HTTPException(status_code=401)
     try:
         res = await update_user_data(request.user['email'], upd_data)
-        res = res.model_dump(mode='python')
         res['email'] = request.user['email']
         return res
     except ValueError as e:
