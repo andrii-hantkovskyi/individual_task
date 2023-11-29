@@ -1,14 +1,13 @@
 'use client'
 
-import React, { ChangeEvent, FC, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { ILoginData } from '@/interfaces/user.interface'
 import { useActions } from '@/hooks/useActions'
+import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
-interface IProps {
-  back: () => void
-}
 
-const Login: FC<IProps> = ({ back }) => {
+const Login = () => {
   const [loginData, setLoginData] = useState<ILoginData>({
     email: '',
     password: ''
@@ -16,6 +15,9 @@ const Login: FC<IProps> = ({ back }) => {
   const { email, password } = loginData
 
   const { login } = useActions()
+  const { isAuthenticated } = useAuth()
+
+  const { replace } = useRouter()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value })
@@ -24,8 +26,11 @@ const Login: FC<IProps> = ({ back }) => {
   const handleClick = () => {
     if (!email || !password) return
     login(loginData)
-    back()
   }
+
+  useEffect(() => {
+    if (isAuthenticated) replace('/')
+  }, [isAuthenticated])
 
   return (
     <div className='flex flex-col items-center justify-between h-56'>

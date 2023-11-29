@@ -1,12 +1,13 @@
 import React from 'react'
-import { IUserInfoAdmin } from '@/interfaces/user.interface'
+import { IUserInfoAdvanced } from '@/interfaces/user.interface'
 
-const UserItemAdmin = ({ user }: { user: IUserInfoAdmin }) => {
+const UserItemAdvanced = ({ user }: { user: IUserInfoAdvanced }) => {
   return (
     <div>
-
+      <p>{user.first_name}</p>
+      <p>{user.email}</p>
     </div>
   )
 }
 
-export default UserItemAdmin
+export default UserItemAdvanced

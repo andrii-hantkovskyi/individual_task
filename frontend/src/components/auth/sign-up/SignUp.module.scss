@@ -1,0 +1,11 @@
+.signup {
+  @apply flex flex-col items-center;
+  > div {
+    @apply flex flex-col items-center;
+
+    input {
+      @apply bg-transparent text-white text-lg border-pink-400 border-2 px-2 w-48 m-2;
+      border-radius: 8px;
+    }
+  }
+}

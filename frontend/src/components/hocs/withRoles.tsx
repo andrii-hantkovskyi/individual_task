@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { IUser, TRole } from '@/interfaces/user.interface'
+import { TRole } from '@/interfaces/user.interface'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 
@@ -16,23 +16,25 @@ export function withRoles(Component: any, requiredRoles: TRoles) {
     const { user } = useAuth()
     const { replace } = useRouter()
 
-    const [userData, setUserData] = useState<IUser | null>(null)
     const [hasPermission, setHasPermission] = useState<boolean | null>(null)
 
     useEffect(() => {
-      if (user) setUserData(user)
-    }, [user])
+      if (user) {
+        const permission = hasRequiredRole(requiredRoles, user.role)
+        setHasPermission(permission)
 
-    useEffect(() => {
-      if (userData) setHasPermission(hasRequiredRole(requiredRoles, userData.role))
-    }, [userData])
+        if (!permission) {
+          replace('/')
+        }
+      } else {
+        replace('/')
+      }
+    }, [replace, user])
 
-    // if (hasPermission === null) console.log('loading')
 
     if (hasPermission) {
       return <Component {...props} />
     } else {
-      // replace('/')
       return null
     }
   }

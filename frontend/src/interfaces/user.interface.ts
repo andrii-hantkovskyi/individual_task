@@ -11,6 +11,10 @@ export interface IUserData extends IUserBase {
   email: string
 }
 
+export interface IUserRegister extends IUserData{
+  password: string
+}
+
 export interface ITokens {
   access_token: string
   refresh_token: string
@@ -23,10 +27,20 @@ export interface IUser extends IUserData {
 }
 
 export interface IUserAuth extends IUser, ITokens {
-
 }
 
 export interface ILoginData {
   email: string
   password: string
 }
+
+export interface IUserInfoAdmin extends IUser{
+  _id: string
+}
+
+export interface IUserInfoAdvanced {
+  first_name: string
+  email: string
+}
+
+export type IUsersInfoAdmins = IUserInfoAdmin[] | IUserInfoAdvanced[]

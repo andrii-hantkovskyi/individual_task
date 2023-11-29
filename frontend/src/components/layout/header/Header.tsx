@@ -2,8 +2,11 @@
 
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useActions } from '@/hooks/useActions'
+import { adminUserApi } from '@/store/api/admin.user.api'
+import { useDispatch } from 'react-redux'
 
 export const navLinks = [
   { href: '/', text: 'Home' },
@@ -21,11 +24,21 @@ export const authLinks = [
 const Header: FC = () => {
   const pathname = usePathname()
   const [isAuth, setAuth] = useState<boolean>(false)
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
+  const { logout } = useActions()
+  const { replace } = useRouter()
+  const { resetApiState } = adminUserApi.util
+  const dispatch = useDispatch()
 
   useEffect(() => {
     setAuth(isAuthenticated)
   }, [isAuthenticated])
+
+  const handleLogout = () => {
+    logout()
+    dispatch(resetApiState())
+    replace('/')
+  }
 
   if (isLoading)
     return <h1>Loading..</h1>
@@ -54,20 +67,37 @@ const Header: FC = () => {
         </div>
         {
           !isAuth
-          &&
-          <div className='flex items-end justify-between w-28'>
-            {
-              authLinks.map((authLink, index) =>
-                <Link
-                  key={index}
-                  className={`hover:text-cyan-200 transition ${pathname === authLink.href ? 'text-white' : 'text-cyan-400'}`}
-                  href={authLink.href}
+            ?
+            <div className='flex items-end justify-between w-28'>
+              {
+                authLinks.map((authLink, index) =>
+                  <Link
+                    key={index}
+                    className={`hover:text-cyan-200 transition ${pathname === authLink.href ? 'text-white' : 'text-cyan-400'}`}
+                    href={authLink.href}
+                  >
+                    {authLink.text}
+                  </Link>
+                )
+              }
+            </div>
+            :
+            (<div className='flex items-end justify-between w-36'>
+              {
+                user && ['admin', 'advanced'].includes(user.role) &&
+                <Link href='/admin'
+                      className={`hover:text-cyan-200 transition 
+                      ${pathname.includes('/admin') ? 'text-white' : 'text-cyan-400'}`}
                 >
-                  {authLink.text}
+                  Dashboard
                 </Link>
-              )
-            }
-          </div>
+              }
+              <button
+                className='hover:text-cyan-200 transition text-cyan-400'
+                onClick={() => handleLogout()}
+              >Logout
+              </button>
+            </div>)
         }
       </div>
     </header>
