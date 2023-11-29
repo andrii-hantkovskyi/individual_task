@@ -13,6 +13,16 @@ from users.models import UserCreate, UserJWT, UserLogin, UserUpdate, RoleTypes, 
 collection = database.users
 
 
+async def get_all_not_admin_users():
+    res = []
+    cursor = collection.find({'role': {'$nin': ['admin', 'advanced']}})
+
+    async for user in cursor:
+        res.append(user)
+
+    return res
+
+
 async def get_user_by_email(email: str):
     user = await collection.find_one({'email': email})
     return user

@@ -13,7 +13,8 @@ from users.services import (
     login_user,
     update_user_data,
     delete_user_by_email,
-    reset_user_login_unsuccessful_attempts, delete_user_by_id, get_user_by_id, send_emails, refresh_jwt_tokens
+    reset_user_login_unsuccessful_attempts, delete_user_by_id, get_user_by_id, send_emails, refresh_jwt_tokens,
+    get_all_not_admin_users
 )
 
 users_router = APIRouter(prefix='/users', tags=['users'])
@@ -93,6 +94,23 @@ async def admin_get_user(request: Request, user_id: str):
         case RoleTypes.advanced.value:
             user = await get_user_by_id(user_id)
             json = UserInfoAdvanced(**user)
+            return JSONResponse(jsonable_encoder(json))
+        case _:
+            raise HTTPException(status_code=401)
+
+
+@users_router.get('/get-users')
+async def admin_get_users(request: Request):
+    if isinstance(request.user, UnauthenticatedUser):
+        raise HTTPException(status_code=401)
+    match request.user['role']:
+        case RoleTypes.admin.value:
+            users = await get_all_not_admin_users()
+            json = [UserInfoAdmin(**user) for user in users]
+            return JSONResponse(jsonable_encoder(json))
+        case RoleTypes.advanced.value:
+            users = await get_all_not_admin_users()
+            json = [UserInfoAdvanced(**user) for user in users]
             return JSONResponse(jsonable_encoder(json))
         case _:
             raise HTTPException(status_code=401)
