@@ -1,0 +1,15 @@
+.profileInfo {
+  @apply flex flex-col items-center;
+  > button {
+    transition: .2s ease-in-out;
+    @apply mt-4 bg-green-500 py-2 px-3 text-lg rounded-lg;
+    &:hover {
+      @apply bg-transparent text-green-500;
+    }
+  }
+
+  div > input {
+    @apply bg-transparent text-white text-lg border-pink-400 border-2 px-2 w-48 m-2;
+    border-radius: 8px;
+  }
+}

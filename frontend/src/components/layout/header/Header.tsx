@@ -1,25 +1,35 @@
 'use client'
 
-import React, { Fragment } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 
-const navLinks = [
+export const navLinks = [
   { href: '/', text: 'Home' },
   { href: '/products', text: 'Products' },
   { href: '/orders', text: 'Orders', isOnlyAuth: true },
   { href: '/profile', text: 'Profile', isOnlyAuth: true }
 ]
 
-const authLinks = [
+export const authLinks = [
   { href: '/sign-up', 'text': 'Sign Up' },
   { href: '/login', 'text': 'Login' }
 ]
 
-const isLoggedIn = false
 
-const Header = () => {
+const Header: FC = () => {
   const pathname = usePathname()
+  const [isAuth, setAuth] = useState<boolean>(false)
+  const { isAuthenticated, isLoading } = useAuth()
+
+  useEffect(() => {
+    setAuth(isAuthenticated)
+  }, [isAuthenticated])
+
+  if (isLoading)
+    return <h1>Loading..</h1>
+
   return (
     <header className='fixed top-0 w-full'>
       <div className='mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between'>
@@ -29,7 +39,7 @@ const Header = () => {
             <ul className='flex space-x-4'>
               {navLinks.map(
                 (navLink, index) =>
-                  navLink.isOnlyAuth && !isLoggedIn ? <Fragment key={index} /> :
+                  navLink.isOnlyAuth && !isAuth ? <Fragment key={index} /> :
                     <li key={index}>
                       <Link
                         href={navLink.href}
@@ -43,7 +53,7 @@ const Header = () => {
           </nav>
         </div>
         {
-          !isLoggedIn
+          !isAuth
           &&
           <div className='flex items-end justify-between w-28'>
             {

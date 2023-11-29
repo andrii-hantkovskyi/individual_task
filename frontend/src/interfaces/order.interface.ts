@@ -1,6 +1,13 @@
+import { IProduct } from '@/interfaces/product.interface'
+
+export interface IOrderCreate {
+  product_id: string
+  qty: number
+}
+
 export interface IOrder {
-  _id: number
-  product_id: number
+  _id: string
+  product: IProduct
   qty: number
 }
 

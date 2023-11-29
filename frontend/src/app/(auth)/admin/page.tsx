@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { withRoles } from '@/components/hocs/withRoles'
 
 const AdminPage = () => {
   return (
@@ -10,4 +11,4 @@ const AdminPage = () => {
   )
 }
 
-export default AdminPage
+export default withRoles(AdminPage, ['admin', 'advanced'])
