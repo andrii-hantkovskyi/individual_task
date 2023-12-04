@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { rootReducer } from '@/store/root-reducer'
 import { orderApi } from '@/store/api/order.api'
-import { adminUserApi } from '@/store/api/admin.user.api'
+import { adminUsersApi } from '@/store/api/admin.users.api'
+import { adminToolsApi } from '@/store/api/admin.tools.api'
 
 
 export const store = configureStore({
@@ -10,7 +11,8 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware()
       .concat(orderApi.middleware)
-      .concat(adminUserApi.middleware)
+      .concat(adminUsersApi.middleware)
+      .concat(adminToolsApi.middleware)
 })
 
 

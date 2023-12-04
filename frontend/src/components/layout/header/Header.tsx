@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useActions } from '@/hooks/useActions'
-import { adminUserApi } from '@/store/api/admin.user.api'
+import { adminUsersApi } from '@/store/api/admin.users.api'
 import { useDispatch } from 'react-redux'
 
 export const navLinks = [
@@ -27,7 +27,7 @@ const Header: FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth()
   const { logout } = useActions()
   const { replace } = useRouter()
-  const { resetApiState } = adminUserApi.util
+  const { resetApiState } = adminUsersApi.util
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Header: FC = () => {
     return <h1>Loading..</h1>
 
   return (
-    <header className='fixed top-0 w-full'>
+    <header className='w-full max-h-52 mb-10'>
       <div className='mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between'>
         <div>
           <h1 className='font-bold text-3xl'>Ind task</h1>

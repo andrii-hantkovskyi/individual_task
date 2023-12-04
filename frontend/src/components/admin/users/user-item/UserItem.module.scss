@@ -1,0 +1,7 @@
+.userItem {
+  @apply border-2 border-cyan-400 rounded-lg px-4 py-3 m-2 flex flex-col items-end;
+
+  .info {
+    @apply mb-1;
+  }
+}

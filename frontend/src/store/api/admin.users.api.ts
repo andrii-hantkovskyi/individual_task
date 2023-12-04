@@ -3,7 +3,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { getAccessToken } from '@/utils/localStorage'
 import { IUsersInfoAdmins } from '@/interfaces/user.interface'
 
-export const adminUserApi = createApi({
+export const adminUsersApi = createApi({
   reducerPath: 'api/adminUser',
   tagTypes: ['adminUsers'],
   baseQuery: fetchBaseQuery({

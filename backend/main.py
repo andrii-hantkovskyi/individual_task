@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 
 import settings
+from admin.router import admin_router
 from database import backup_db
 from orders.router import orders_router
 from products.router import products_router
@@ -25,6 +26,7 @@ app.add_middleware(AuthenticationMiddleware, backend=BearerTokenAuthBackend())
 app.include_router(prefix='/api', router=orders_router)
 app.include_router(prefix='/api', router=products_router)
 app.include_router(prefix='/api', router=users_router)
+app.include_router(prefix='/api', router=admin_router)
 
 
 @app.on_event('startup')

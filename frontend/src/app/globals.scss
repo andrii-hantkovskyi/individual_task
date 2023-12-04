@@ -17,7 +17,7 @@
 }
 
 body {
-  @apply flex flex-col justify-center items-center;
+  @apply flex flex-col items-center;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
                   to bottom,
