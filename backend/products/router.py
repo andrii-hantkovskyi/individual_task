@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Request, HTTPException
 from starlette.authentication import UnauthenticatedUser
 from starlette.responses import Response
-from starlette.status import HTTP_204_NO_CONTENT, HTTP_201_CREATED
+from starlette.status import HTTP_204_NO_CONTENT
 
 from products.models import Product, ProductCreate, ProductUpdate
 from products.services import (

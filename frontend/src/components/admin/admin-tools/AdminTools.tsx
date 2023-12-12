@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import styles from './AdminTools.module.scss'
 import { adminToolsApi } from '@/store/api/admin.tools.api'
+import Modal from '@/components/ui/modal/Modal'
+import SignUp from '@/components/auth/sign-up/SignUp'
 
 const AdminTools = () => {
   const [restoreDBDate, setRestoreDBDate] = useState<string>('')
@@ -10,9 +12,12 @@ const AdminTools = () => {
   const [backupDB] = adminToolsApi.useBackupDBMutation()
   const [restoreDB] = adminToolsApi.useRestoreDBMutation()
 
+  const [userCreteModalOpen, setUserCreateModalOpen] = useState<boolean>(false)
+
   return (
     <div className={styles.adminTools}>
-      <button>Create user</button>
+      <Modal isOpen={userCreteModalOpen} onClose={() => setUserCreateModalOpen(false)}><SignUp /></Modal>
+      <button onClick={() => setUserCreateModalOpen(true)}>Create user</button>
       <div className={styles.db}>
         <button onClick={() => backupDB()}>Backup db</button>
         <select
